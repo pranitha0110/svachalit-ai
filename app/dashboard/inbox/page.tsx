@@ -1,182 +1,175 @@
 "use client";
-import { motion } from "framer-motion";
-import { Bot, MessageSquare, Phone, Send } from "lucide-react";
 
-const conversations = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    platform: "WhatsApp",
-    message: "Need pricing details for coworking spaces.",
-  },
-  {
-    id: 2,
-    name: "Ananya",
-    platform: "Instagram",
-    message: "Can I book a demo for tomorrow?",
-  },
-  {
-    id: 3,
-    name: "Michael",
-    platform: "Call",
-    message: "Interested in enterprise plan.",
-  },
-];
+import { useState } from "react";
+import { motion } from "framer-motion";
+
+type Message = {
+  role: "user" | "ai";
+  content: string;
+};
 
 export default function InboxPage() {
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "user",
+      content: "Hi, I need pricing for coworking spaces.",
+    },
+
+    {
+      role: "ai",
+      content:
+        "Sure! We offer flexible plans starting at ₹4999/month.",
+    },
+  ]);
+
+  const [input, setInput] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  async function sendMessage() {
+
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      role: "user",
+      content: input,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+
+    setInput("");
+
+    setLoading(true);
+
+    try {
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          message: input,
+        }),
+      });
+
+      const data = await response.json();
+
+      const aiMessage: Message = {
+        role: "ai",
+        content: data.reply,
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+    } catch (error) {
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          content: "Something went wrong.",
+        },
+      ]);
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="grid grid-cols-12 gap-6 h-[85vh]">
+    <div className="flex flex-col h-[85vh]">
 
-      {/* Conversations List */}
-      <div className="col-span-3 bg-[#0F172A] border border-white/10 rounded-2xl p-4">
-        
-        <h2 className="text-white text-xl font-semibold mb-6">
-          Conversations
-        </h2>
+      {/* Header */}
+      <div className="mb-6">
 
-        <div className="space-y-4">
-          {conversations.map((chat) => (
+        <h1 className="text-3xl font-bold text-white">
+          AI Inbox
+        </h1>
+
+        <p className="text-gray-400 mt-2">
+          Multi-channel autonomous AI conversations.
+        </p>
+
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 bg-[#0F172A] border border-white/10 rounded-2xl p-6 overflow-y-auto space-y-4">
+
+        {messages.map((message, index) => (
+
+          <div
+            key={index}
+            className={`flex ${
+              message.role === "user"
+                ? "justify-start"
+                : "justify-end"
+            }`}
+          >
+
             <div
-              key={chat.id}
-              className="p-4 rounded-xl bg-white/5 hover:bg-white/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer border border-white/5"
+              className={`max-w-xl px-4 py-3 rounded-2xl ${
+                message.role === "user"
+                  ? "bg-white/10 text-white"
+                  : "bg-violet-600 text-white"
+              }`}
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-white font-medium">
-                  {chat.name}
-                </h3>
 
-                <span className="text-xs text-cyan-400">
-                  {chat.platform}
-                </span>
-              </div>
+              {message.content}
 
-              <p className="text-gray-400 text-sm mt-2 line-clamp-2">
-                {chat.message}
-              </p>
             </div>
-          ))}
-        </div>
+
+          </div>
+        ))}
+
+        {/* AI Thinking */}
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+            className="flex justify-end"
+          >
+
+            <div className="bg-violet-500/20 border border-violet-500/20 text-violet-300 px-4 py-3 rounded-2xl">
+
+              AI is thinking...
+
+            </div>
+
+          </motion.div>
+        )}
+
       </div>
 
-      {/* Chat Window */}
-      <div className="col-span-6 bg-[#0F172A] border border-white/10 rounded-2xl flex flex-col">
+      {/* Input */}
+      <div className="mt-6 flex gap-4">
 
-        {/* Header */}
-        <div className="border-b border-white/10 p-4 flex items-center justify-between">
-          
-          <div>
-            <h2 className="text-white font-semibold">
-              Rahul Sharma
-            </h2>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type your message..."
+          className="flex-1 bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-white outline-none"
+        />
 
-            <p className="text-sm text-gray-400">
-              Active now
-            </p>
-          </div>
+        <button
+          onClick={sendMessage}
+          className="bg-violet-600 hover:bg-violet-700 transition-all px-6 rounded-xl text-white font-medium"
+        >
 
-          <div className="flex gap-3">
-            <Phone className="text-gray-400" size={20} />
-            <Send className="text-gray-400" size={20} />
-            <MessageSquare className="text-gray-400" size={20} />
-          </div>
-        </div>
+          Send
 
-        {/* Messages */}
-        <motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{
-    duration: 1,
-    repeat: Infinity,
-    repeatType: "reverse",
-  }}
-  className="flex justify-start"
->
-  <div className="bg-white/5 border border-violet-500/20 text-violet-300 px-4 py-3 rounded-2xl max-w-md">
-    
-    <p className="text-sm">
-      AI is analyzing customer intent...
-    </p>
+        </button>
 
-  </div>
-</motion.div>
-        <div className="flex-1 p-6 space-y-4 overflow-y-auto">
-
-          <div className="flex justify-start">
-            <div className="bg-white/10 text-white px-4 py-3 rounded-2xl max-w-md">
-              Hi, I need pricing for coworking spaces.
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            <div className="bg-violet-600 text-white px-4 py-3 rounded-2xl max-w-md">
-              Sure! We offer flexible plans starting at ₹4999/month.
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            <div className="bg-violet-600 text-white px-4 py-3 rounded-2xl max-w-md">
-              Would you like me to schedule a visit tomorrow?
-            </div>
-          </div>
-
-        </div>
-
-        {/* Input */}
-        <div className="border-t border-white/10 p-4">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            className="w-full bg-black/30 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500 transition-all"
-          />
-        </div>
       </div>
 
-      {/* AI Activity Panel */}
-      <div className="col-span-3 bg-[#0F172A] border border-white/10 rounded-2xl p-4">
-
-        <div className="flex items-center gap-3 mb-6">
-          <Bot className="text-violet-400" />
-
-          <h2 className="text-white text-xl font-semibold">
-            AI Activity
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-
-          <div className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-violet-500/40 transition-all">
-            <p className="text-sm text-violet-400">
-              Sales AI
-            </p>
-
-            <p className="text-white mt-2 text-sm">
-              Detected high-intent lead.
-            </p>
-          </div>
-
-          <div className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-cyan-500/40 transition-all">
-            <p className="text-sm text-cyan-400">
-              Scheduler AI
-            </p>
-
-            <p className="text-white mt-2 text-sm">
-              Suggested meeting slot for tomorrow.
-            </p>
-          </div>
-
-          <div className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-emerald-500/40 transition-all">
-            <p className="text-sm text-emerald-400">
-              CRM AI
-            </p>
-
-            <p className="text-white mt-2 text-sm">
-              Lead added to pipeline automatically.
-            </p>
-          </div>
-
-        </div>
-      </div>
     </div>
   );
 }
