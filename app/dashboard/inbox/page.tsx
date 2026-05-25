@@ -27,6 +27,9 @@ export default function InboxPage() {
 
   const [loading, setLoading] = useState(false);
 
+  // NEW AI ANALYSIS STATE
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+
   async function sendMessage() {
 
     if (!input.trim()) return;
@@ -44,6 +47,7 @@ export default function InboxPage() {
 
     try {
 
+      // CHAT API
       const response = await fetch("/api/chat", {
         method: "POST",
 
@@ -57,6 +61,23 @@ export default function InboxPage() {
       });
 
       const data = await response.json();
+
+      // ANALYZE API
+      const analysisResponse = await fetch("/api/analyze", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          message: input,
+        }),
+      });
+
+      const analysisData = await analysisResponse.json();
+
+      setAiAnalysis(analysisData.analysis);
 
       const aiMessage: Message = {
         role: "ai",
@@ -76,97 +97,181 @@ export default function InboxPage() {
       ]);
 
     } finally {
+
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex flex-col h-[85vh]">
 
-      {/* Header */}
-      <div className="mb-6">
+    <div className="grid grid-cols-12 gap-6 h-[85vh]">
 
-        <h1 className="text-3xl font-bold text-white">
-          AI Inbox
-        </h1>
+      {/* LEFT CHAT SECTION */}
+      <div className="col-span-8 flex flex-col">
 
-        <p className="text-gray-400 mt-2">
-          Multi-channel autonomous AI conversations.
-        </p>
+        {/* Header */}
+        <div className="mb-6">
 
-      </div>
+          <h1 className="text-3xl font-bold text-white">
+            AI Inbox
+          </h1>
 
-      {/* Chat Area */}
-      <div className="flex-1 bg-[#0F172A] border border-white/10 rounded-2xl p-6 overflow-y-auto space-y-4">
+          <p className="text-gray-400 mt-2">
+            Multi-channel autonomous AI conversations.
+          </p>
 
-        {messages.map((message, index) => (
+        </div>
 
-          <div
-            key={index}
-            className={`flex ${
-              message.role === "user"
-                ? "justify-start"
-                : "justify-end"
-            }`}
-          >
+        {/* Chat Area */}
+        <div className="flex-1 bg-[#0F172A] border border-white/10 rounded-2xl p-6 overflow-y-auto space-y-4">
+
+          {messages.map((message, index) => (
 
             <div
-              className={`max-w-xl px-4 py-3 rounded-2xl ${
+              key={index}
+              className={`flex ${
                 message.role === "user"
-                  ? "bg-white/10 text-white"
-                  : "bg-violet-600 text-white"
+                  ? "justify-start"
+                  : "justify-end"
               }`}
             >
 
-              {message.content}
+              <div
+                className={`max-w-xl px-4 py-3 rounded-2xl ${
+                  message.role === "user"
+                    ? "bg-white/10 text-white"
+                    : "bg-violet-600 text-white"
+                }`}
+              >
+
+                {message.content}
+
+              </div>
+
+            </div>
+          ))}
+
+          {/* AI Thinking */}
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className="flex justify-end"
+            >
+
+              <div className="bg-violet-500/20 border border-violet-500/20 text-violet-300 px-4 py-3 rounded-2xl">
+
+                Svachalit AI is analyzing customer...
+
+              </div>
+
+            </motion.div>
+          )}
+
+        </div>
+
+        {/* Input */}
+        <div className="mt-6 flex gap-4">
+
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            className="flex-1 bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-white outline-none"
+          />
+
+          <button
+            onClick={sendMessage}
+            className="bg-violet-600 hover:bg-violet-700 transition-all px-6 rounded-xl text-white font-medium"
+          >
+
+            Send
+
+          </button>
+
+        </div>
+
+      </div>
+
+      {/* RIGHT AI INSIGHTS PANEL */}
+      <div className="col-span-4">
+
+        <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6 h-full">
+
+          <h2 className="text-2xl font-bold text-white mb-6">
+            AI Lead Intelligence
+          </h2>
+
+          <div className="space-y-4">
+
+            <div className="bg-[#1E293B] rounded-2xl p-4 border border-white/10">
+
+              <p className="text-sm text-gray-400">
+                Lead Score
+              </p>
+
+              <h2 className="text-3xl font-bold text-cyan-400 mt-2">
+                {aiAnalysis?.leadScore || "--"}%
+              </h2>
+
+            </div>
+
+            <div className="bg-[#1E293B] rounded-2xl p-4 border border-white/10">
+
+              <p className="text-sm text-gray-400">
+                Intent
+              </p>
+
+              <h2 className="text-xl font-bold text-violet-400 mt-2">
+                {aiAnalysis?.intent || "--"}
+              </h2>
+
+            </div>
+
+            <div className="bg-[#1E293B] rounded-2xl p-4 border border-white/10">
+
+              <p className="text-sm text-gray-400">
+                Urgency
+              </p>
+
+              <h2 className="text-xl font-bold text-orange-400 mt-2">
+                {aiAnalysis?.urgency || "--"}
+              </h2>
+
+            </div>
+
+            <div className="bg-[#1E293B] rounded-2xl p-4 border border-white/10">
+
+              <p className="text-sm text-gray-400">
+                Sentiment
+              </p>
+
+              <h2 className="text-xl font-bold text-pink-400 mt-2">
+                {aiAnalysis?.sentiment || "--"}
+              </h2>
+
+            </div>
+
+            <div className="bg-[#1E293B] rounded-2xl p-4 border border-white/10">
+
+              <p className="text-sm text-gray-400">
+                Estimated Budget
+              </p>
+
+              <h2 className="text-xl font-bold text-emerald-400 mt-2">
+                {aiAnalysis?.estimatedBudget || "--"}
+              </h2>
 
             </div>
 
           </div>
-        ))}
 
-        {/* AI Thinking */}
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-            className="flex justify-end"
-          >
-
-            <div className="bg-violet-500/20 border border-violet-500/20 text-violet-300 px-4 py-3 rounded-2xl">
-
-              AI is thinking...
-
-            </div>
-
-          </motion.div>
-        )}
-
-      </div>
-
-      {/* Input */}
-      <div className="mt-6 flex gap-4">
-
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className="flex-1 bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-white outline-none"
-        />
-
-        <button
-          onClick={sendMessage}
-          className="bg-violet-600 hover:bg-violet-700 transition-all px-6 rounded-xl text-white font-medium"
-        >
-
-          Send
-
-        </button>
+        </div>
 
       </div>
 
