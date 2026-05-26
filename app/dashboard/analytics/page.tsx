@@ -12,6 +12,8 @@ import {
   Bar,
 } from "recharts";
 
+import { leads } from "@/lib/store";
+
 const responseData = [
   { day: "Mon", responses: 120 },
   { day: "Tue", responses: 210 },
@@ -21,18 +23,36 @@ const responseData = [
   { day: "Sat", responses: 290 },
 ];
 
-const leadData = [
-  { name: "Hot", leads: 48 },
-  { name: "Warm", leads: 30 },
-  { name: "Cold", leads: 12 },
-];
-
 export default function AnalyticsPage() {
+
+  const hotLeads = leads.filter(
+    (lead) => lead.score >= 80
+  );
+
+  const warmLeads = leads.filter(
+    (lead) => lead.score >= 50 && lead.score < 80
+  );
+
+  const coldLeads = leads.filter(
+    (lead) => lead.score < 50
+  );
+
+  const leadData = [
+    { name: "Hot", leads: hotLeads.length },
+    { name: "Warm", leads: warmLeads.length },
+    { name: "Cold", leads: coldLeads.length },
+  ];
+
+  const estimatedRevenue =
+    leads.length * 25000;
+
   return (
+
     <div>
 
       {/* Header */}
       <div className="mb-8">
+
         <h1 className="text-3xl font-bold text-white">
           AI Analytics
         </h1>
@@ -40,49 +60,58 @@ export default function AnalyticsPage() {
         <p className="text-gray-400 mt-2">
           Real-time autonomous workflow intelligence.
         </p>
+
       </div>
 
       {/* Top Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
 
         <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
+
           <p className="text-gray-400">
             AI Conversations
           </p>
 
           <h2 className="text-4xl font-bold text-cyan-400 mt-4">
-            12.4K
+            {leads.length * 3}
           </h2>
+
         </div>
 
         <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
+
           <p className="text-gray-400">
             Leads Generated
           </p>
 
           <h2 className="text-4xl font-bold text-violet-400 mt-4">
-            842
+            {leads.length}
           </h2>
+
         </div>
 
         <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
+
           <p className="text-gray-400">
-            AI Resolution Rate
+            Hot Leads
           </p>
 
           <h2 className="text-4xl font-bold text-emerald-400 mt-4">
-            94%
+            {hotLeads.length}
           </h2>
+
         </div>
 
         <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
+
           <p className="text-gray-400">
-            Revenue Generated
+            Estimated Revenue
           </p>
 
           <h2 className="text-4xl font-bold text-orange-400 mt-4">
-            ₹12.8L
+            ₹{estimatedRevenue.toLocaleString()}
           </h2>
+
         </div>
 
       </div>
@@ -90,7 +119,7 @@ export default function AnalyticsPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Response Analytics */}
+        {/* AI Activity */}
         <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
 
           <h2 className="text-white text-xl font-semibold mb-6">
@@ -98,11 +127,21 @@ export default function AnalyticsPage() {
           </h2>
 
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={responseData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
 
-                <XAxis dataKey="day" stroke="#94A3B8" />
+            <ResponsiveContainer width="100%" height="100%">
+
+              <LineChart data={responseData}>
+
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#1E293B"
+                />
+
+                <XAxis
+                  dataKey="day"
+                  stroke="#94A3B8"
+                />
+
                 <YAxis stroke="#94A3B8" />
 
                 <Tooltip />
@@ -113,8 +152,11 @@ export default function AnalyticsPage() {
                   stroke="#8B5CF6"
                   strokeWidth={3}
                 />
+
               </LineChart>
+
             </ResponsiveContainer>
+
           </div>
 
         </div>
@@ -127,11 +169,21 @@ export default function AnalyticsPage() {
           </h2>
 
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={leadData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
 
-                <XAxis dataKey="name" stroke="#94A3B8" />
+            <ResponsiveContainer width="100%" height="100%">
+
+              <BarChart data={leadData}>
+
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#1E293B"
+                />
+
+                <XAxis
+                  dataKey="name"
+                  stroke="#94A3B8"
+                />
+
                 <YAxis stroke="#94A3B8" />
 
                 <Tooltip />
@@ -141,8 +193,11 @@ export default function AnalyticsPage() {
                   fill="#06B6D4"
                   radius={[8, 8, 0, 0]}
                 />
+
               </BarChart>
+
             </ResponsiveContainer>
+
           </div>
 
         </div>
@@ -159,21 +214,27 @@ export default function AnalyticsPage() {
         <div className="space-y-4">
 
           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+
             <p className="text-violet-300">
-              Sales AI detected 34% increase in high-intent leads this week.
+              AI detected {hotLeads.length} high-priority leads requiring immediate sales follow-up.
             </p>
+
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+
             <p className="text-cyan-300">
-              Support AI reduced average response time by 42%.
+              Autonomous CRM automation improved lead organization efficiency dynamically.
             </p>
+
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+
             <p className="text-emerald-300">
-              Scheduler AI optimized meeting allocation efficiency by 28%.
+              AI workflow engine processed {leads.length} intelligent customer interactions successfully.
             </p>
+
           </div>
 
         </div>

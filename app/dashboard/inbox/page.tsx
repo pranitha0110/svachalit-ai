@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { leads } from "@/lib/store";
 
 type Message = {
   role: "user" | "ai";
@@ -27,7 +28,6 @@ export default function InboxPage() {
 
   const [loading, setLoading] = useState(false);
 
-  // NEW AI ANALYSIS STATE
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
 
   async function sendMessage() {
@@ -79,12 +79,51 @@ export default function InboxPage() {
 
       setAiAnalysis(analysisData.analysis);
 
+      // STORE LEAD IN CRM
+      const analysis = analysisData.analysis;
+
+      leads.push({
+        name: "New Customer",
+        company: "AI Generated Lead",
+        budget: analysis.estimatedBudget,
+        intent: analysis.intent,
+        urgency: analysis.urgency,
+        sentiment: analysis.sentiment,
+        score: analysis.leadScore,
+      });
+
+      // AI TYPING EFFECT
+      const fullReply = data.reply;
+
+      let currentText = "";
+
       const aiMessage: Message = {
         role: "ai",
-        content: data.reply,
+        content: "",
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      for (let i = 0; i < fullReply.length; i++) {
+
+        currentText += fullReply[i];
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, 8)
+        );
+
+        setMessages((prev) => {
+
+          const updated = [...prev];
+
+          updated[updated.length - 1] = {
+            role: "ai",
+            content: currentText,
+          };
+
+          return updated;
+        });
+      }
 
     } catch (error) {
 
@@ -104,10 +143,10 @@ export default function InboxPage() {
 
   return (
 
-    <div className="grid grid-cols-12 gap-6 h-[85vh]">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 min-h-[85vh]">
 
       {/* LEFT CHAT SECTION */}
-      <div className="col-span-8 flex flex-col">
+      <div className="xl:col-span-8 flex flex-col">
 
         {/* Header */}
         <div className="mb-6">
@@ -199,7 +238,7 @@ export default function InboxPage() {
       </div>
 
       {/* RIGHT AI INSIGHTS PANEL */}
-      <div className="col-span-4">
+      <div className="xl:col-span-4">
 
         <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6 h-full">
 

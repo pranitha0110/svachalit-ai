@@ -29,6 +29,16 @@ Return ONLY valid JSON in this exact format:
 
     const aiReply = await generateAIResponse(prompt);
 
+if (!aiReply) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "Analysis failed: empty AI response",
+    },
+    { status: 500 }
+  );
+}
+
 const parsedAnalysis = JSON.parse(aiReply);
 
 return NextResponse.json({

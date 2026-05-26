@@ -1,179 +1,154 @@
 "use client";
 
-import {
-  BrainCircuit,
-  Activity,
-  Clock3,
-  Sparkles,
-} from "lucide-react";
+import { motion } from "framer-motion";
 
 const agents = [
   {
     name: "Sales AI",
     description:
-      "Qualifies leads and handles customer sales conversations.",
+      "Autonomously converts leads and handles pricing conversations.",
     status: "Active",
-    tasks: "128 conversations",
-    intelligence: "94%",
-    color: "violet",
+    performance: "94%",
+    color: "from-violet-500 to-fuchsia-500",
   },
 
   {
     name: "Support AI",
     description:
-      "Resolves customer queries using AI knowledge base.",
+      "Handles customer support tickets and resolves issues instantly.",
     status: "Running",
-    tasks: "342 tickets resolved",
-    intelligence: "91%",
-    color: "cyan",
+    performance: "91%",
+    color: "from-cyan-500 to-blue-500",
   },
 
   {
     name: "Scheduler AI",
     description:
-      "Books appointments and manages calendar workflows.",
+      "Automatically schedules meetings and follow-ups with leads.",
     status: "Optimizing",
-    tasks: "48 meetings scheduled",
-    intelligence: "96%",
-    color: "emerald",
+    performance: "89%",
+    color: "from-emerald-500 to-green-500",
+  },
+
+  {
+    name: "CRM AI",
+    description:
+      "Analyzes customer sentiment and prioritizes business opportunities.",
+    status: "Analyzing",
+    performance: "96%",
+    color: "from-orange-500 to-red-500",
   },
 
   {
     name: "Analytics AI",
     description:
-      "Tracks business metrics and predicts conversion trends.",
-    status: "Analyzing",
-    tasks: "24 reports generated",
-    intelligence: "89%",
-    color: "orange",
+      "Tracks performance metrics and generates intelligent insights.",
+    status: "Monitoring",
+    performance: "93%",
+    color: "from-pink-500 to-rose-500",
   },
 ];
 
 export default function AgentsPage() {
+
   return (
+
     <div>
 
       {/* Header */}
       <div className="mb-8">
+
         <h1 className="text-3xl font-bold text-white">
-          AI Workforce
+          Autonomous AI Agents
         </h1>
 
         <p className="text-gray-400 mt-2">
-          Autonomous AI employees managing business operations.
+          Multi-agent AI orchestration system powering Svachalit.
         </p>
-      </div>
-
-      {/* Top Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
-        <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center gap-3">
-            <BrainCircuit className="text-violet-400" />
-
-            <p className="text-gray-400">
-              Active AI Agents
-            </p>
-          </div>
-
-          <h2 className="text-4xl font-bold text-white mt-4">
-            4
-          </h2>
-        </div>
-
-        <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center gap-3">
-            <Activity className="text-cyan-400" />
-
-            <p className="text-gray-400">
-              Autonomous Tasks
-            </p>
-          </div>
-
-          <h2 className="text-4xl font-bold text-white mt-4">
-            1,248
-          </h2>
-        </div>
-
-        <div className="bg-[#0F172A] border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center gap-3">
-            <Sparkles className="text-emerald-400" />
-
-            <p className="text-gray-400">
-              AI Efficiency
-            </p>
-          </div>
-
-          <h2 className="text-4xl font-bold text-white mt-4">
-            93%
-          </h2>
-        </div>
 
       </div>
 
-      {/* AI Agent Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Agent Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
         {agents.map((agent, index) => (
-          <div
+
+          <motion.div
             key={index}
-            className="bg-[#0F172A] border border-white/10 rounded-2xl p-6 hover:border-violet-500/40 transition-all hover:scale-[1.01]"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-[#0F172A] border border-white/10 rounded-2xl p-6"
           >
 
-            <div className="flex items-start justify-between">
+            {/* Top */}
+            <div className="flex items-center justify-between">
 
               <div>
-                <h2 className="text-2xl font-semibold text-white">
+
+                <h2 className="text-2xl font-bold text-white">
                   {agent.name}
                 </h2>
 
-                <p className="text-gray-400 mt-2 max-w-md">
+                <p className="text-gray-400 mt-2 text-sm">
                   {agent.description}
                 </p>
+
               </div>
 
-              <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+              <div
+                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${agent.color}`}
+              />
+
             </div>
 
-            {/* Metrics */}
-            <div className="grid grid-cols-2 gap-4 mt-8">
+            {/* Stats */}
+            <div className="mt-8 space-y-4">
 
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-gray-400 text-sm">
+              <div className="flex justify-between">
+
+                <span className="text-gray-400">
                   Status
-                </p>
+                </span>
 
-                <p className="text-white font-medium mt-2">
+                <span className="text-emerald-400 font-medium">
                   {agent.status}
-                </p>
+                </span>
+
               </div>
 
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-gray-400 text-sm">
-                  Intelligence
-                </p>
+              <div className="flex justify-between">
 
-                <p className="text-violet-400 font-medium mt-2">
-                  {agent.intelligence}
-                </p>
-              </div>
+                <span className="text-gray-400">
+                  Performance
+                </span>
 
-            </div>
+                <span className="text-cyan-400 font-medium">
+                  {agent.performance}
+                </span>
 
-            {/* Tasks */}
-            <div className="mt-6 bg-violet-500/10 border border-violet-500/20 rounded-xl p-4">
-
-              <div className="flex items-center gap-2 text-violet-300">
-                <Clock3 size={16} />
-
-                <p className="text-sm">
-                  {agent.tasks}
-                </p>
               </div>
 
             </div>
 
-          </div>
+            {/* AI Activity */}
+            <div className="mt-6">
+
+              <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: agent.performance }}
+                  transition={{ duration: 1.5 }}
+                  className={`h-full bg-gradient-to-r ${agent.color}`}
+                />
+
+              </div>
+
+            </div>
+
+          </motion.div>
+
         ))}
 
       </div>
